@@ -30,19 +30,19 @@ func setX1000(geld *Geld) {
 		comp.Mul(comp, big.NewInt(1000))
 		x++
 	}
-	geld.x1000 = x
+	(*geld).x1000 = x
 	comp.Div(comp, big.NewInt(1000))
-	geld.dig.Div(&geld.amount, comp)
+	(*geld).dig.Div(&geld.amount, comp)
 }
 
 func setMoney(geld *Geld, value string) {
-	geld.vorigAmount = geld.amount
-	geld.amount.SetString(value, 10)
+	(*geld).vorigAmount = geld.amount
+	(*geld).amount.SetString(value, 10)
 	setX1000(geld)
 }
 
 func addMoney(geld *Geld) {
-	geld.vorigAmount = geld.amount
+	(*geld).vorigAmount = geld.amount
 	var grootte string
 	var hoeveelheid string
 	var indexGrootte int
@@ -67,7 +67,7 @@ func addMoney(geld *Geld) {
 }
 
 func subMoney(geld *Geld) {
-	geld.vorigAmount = geld.amount
+	(*geld).vorigAmount = geld.amount
 	var grootte string
 	var hoeveelheid string
 	var indexGrootte int
@@ -88,7 +88,7 @@ func subMoney(geld *Geld) {
 	bedrag.Mul(&bedrag, multiplier)
 	var totaal big.Int
 	totaal.Sub(&geld.amount, &bedrag)
-	setMoney(geld, totaal.String())
+	setMoney((geld), totaal.String())
 }
 
 func loadFile() []string {
@@ -107,8 +107,8 @@ func saveFile(rekeningen *[]Geld) {
 	file, err := os.Create("./money.txt")
 	check(err)
 	for i := range *rekeningen {
-		file.WriteString(&(rekeningen[i].naam, "\n")
-		file.WriteString(rekeningen[i].amount.String(), "\n")
+		file.WriteString((*rekeningen)[i].naam)
+		file.WriteString((*rekeningen)[i].amount.String())
 	}
 	file.Close()
 	file.Sync()
@@ -116,8 +116,7 @@ func saveFile(rekeningen *[]Geld) {
 
 func importeerRekeningen() []Geld {
 	rek := loadFile()
-	var rekeningen []Geld
-	rekeningen = make([]Geld, len(rek)/2)
+	var rekeningen = make([]Geld, len(rek)/2)
 	for i := range rek {
 		if i%2 == 0 {
 			rekeningen[i/2].naam = rek[i]
@@ -132,15 +131,24 @@ func balans(rekening Geld) {
 	fmt.Println(rekening.amount.String(), "\n", rekening.dig.String(), " ", x1000[rekening.x1000])
 }
 
+func nieuweRekening(naam string) Geld {
+	var rekening Geld
+	setMoney(&rekening, "0")
+	rekening.naam = naam
+	return rekening
+}
+
 func main() {
 	for {
 		var rekeningen []Geld
+		rekeningen = make([]Geld, 0)
 		var huidigeRekening int
 		fmt.Println("1. Importeer rekeningen")
-		fmt.Println("2. Wijzig actieve rekening")
-		fmt.Println("3. Verander totaal geld")
-		fmt.Println("4. + geld")
-		fmt.Println("5. - geld")
+		fmt.Println("2. Maak rekening aan")
+		fmt.Println("3. Wijzig actieve rekening")
+		fmt.Println("4. Verander totaal geld")
+		fmt.Println("5. + geld")
+		fmt.Println("6. - geld")
 		fmt.Println("8. CANCEL vorige wijziging")
 		fmt.Println("9. Sla op")
 		var keuze int
@@ -150,24 +158,30 @@ func main() {
 		if keuze == 1 {
 			rekeningen = importeerRekeningen()
 		} else if keuze == 2 {
+			var naam string
+			fmt.Print("\nNaam: ")
+			fmt.Scanln(&naam)
+			rekeningen = append(rekeningen, nieuweRekening(naam))
+			fmt.Println(rekeningen)
+		} else if keuze == 3 {
 			for i := range rekeningen {
 				fmt.Println(i, rekeningen[i].naam)
 			}
 			fmt.Print("Kies: ")
 			fmt.Scanln(&huidigeRekening)
-		} else if keuze == 3 {
+		} else if keuze == 4 {
 			var nieuw string
 			fmt.Print("\nNieuw bedrag: ")
 			fmt.Scanln(&nieuw)
 			setMoney(&rekeningen[huidigeRekening], nieuw)
-		} else if keuze == 4 {
-			addMoney(&rekeningen[huidigeRekening])
 		} else if keuze == 5 {
+			addMoney(&rekeningen[huidigeRekening])
+		} else if keuze == 6 {
 			subMoney(&rekeningen[huidigeRekening])
 		} else if keuze == 8 {
 			setMoney(&rekeningen[huidigeRekening], rekeningen[huidigeRekening].vorigAmount.String())
 		} else if keuze == 9 {
-
+			saveFile(&rekeningen)
 		}
 		balans(rekeningen[huidigeRekening])
 	}
