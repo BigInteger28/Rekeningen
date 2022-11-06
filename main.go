@@ -162,7 +162,6 @@ func main() {
 			fmt.Print("\nNaam: ")
 			fmt.Scanln(&naam)
 			rekeningen = append(rekeningen, nieuweRekening(naam))
-			fmt.Println(rekeningen)
 		} else if keuze == 3 {
 			for i := range rekeningen {
 				fmt.Println(i, rekeningen[i].naam)
