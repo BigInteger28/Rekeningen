@@ -36,13 +36,12 @@ func setX1000(geld *Geld) {
 }
 
 func setMoney(geld *Geld, value string) {
-	(*geld).vorigAmount = geld.amount
 	(*geld).amount.SetString(value, 10)
 	setX1000(geld)
 }
 
 func addMoney(geld *Geld) {
-	(*geld).vorigAmount = geld.amount
+	(*geld).vorigAmount.SetString((*geld).amount.String(), 10)
 	var grootte string
 	var hoeveelheid string
 	var indexGrootte int
@@ -67,7 +66,7 @@ func addMoney(geld *Geld) {
 }
 
 func subMoney(geld *Geld) {
-	(*geld).vorigAmount = geld.amount
+	(*geld).vorigAmount.SetString((*geld).amount.String(), 10)
 	var grootte string
 	var hoeveelheid string
 	var indexGrootte int
@@ -108,7 +107,9 @@ func saveFile(rekeningen *[]Geld) {
 	check(err)
 	for i := range *rekeningen {
 		file.WriteString((*rekeningen)[i].naam)
+		file.WriteString("\n")
 		file.WriteString((*rekeningen)[i].amount.String())
+		file.WriteString("\n")
 	}
 	file.Close()
 	file.Sync()
@@ -139,10 +140,9 @@ func nieuweRekening(naam string) Geld {
 }
 
 func main() {
+	var rekeningen []Geld
+	var huidigeRekening int
 	for {
-		var rekeningen []Geld
-		rekeningen = make([]Geld, 0)
-		var huidigeRekening int
 		fmt.Println("1. Importeer rekeningen")
 		fmt.Println("2. Maak rekening aan")
 		fmt.Println("3. Wijzig actieve rekening")
