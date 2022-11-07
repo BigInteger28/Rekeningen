@@ -129,7 +129,7 @@ func importeerRekeningen() []Geld {
 }
 
 func balans(rekening Geld) {
-	fmt.Println(rekening.amount.String(), "\n", rekening.dig.String(), " ", x1000[rekening.x1000])
+	fmt.Println("\n", rekening.naam, "\n", rekening.amount.String(), "\n", rekening.dig.String(), x1000[rekening.x1000])
 }
 
 func nieuweRekening(naam string) Geld {
