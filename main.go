@@ -145,10 +145,11 @@ func main() {
 	for {
 		fmt.Println("1. Importeer rekeningen")
 		fmt.Println("2. Maak rekening aan")
-		fmt.Println("3. Wijzig actieve rekening")
-		fmt.Println("4. Verander totaal geld")
-		fmt.Println("5. + geld")
-		fmt.Println("6. - geld")
+		fmt.Println("3. Verwijder rekening")
+		fmt.Println("4. Wijzig actieve rekening")
+		fmt.Println("5. Verander totaal geld")
+		fmt.Println("6. + geld")
+		fmt.Println("7. - geld")
 		fmt.Println("8. CANCEL vorige wijziging")
 		fmt.Println("9. Sla op")
 		var keuze int
@@ -163,19 +164,27 @@ func main() {
 			fmt.Scanln(&naam)
 			rekeningen = append(rekeningen, nieuweRekening(naam))
 		} else if keuze == 3 {
+			var nummer int
+			for i := range rekeningen {
+				fmt.Println(i, rekeningen[i].naam)
+			}
+			fmt.Print("Nummer: ")
+			fmt.Scanln(&nummer)
+			rekeningen = append(rekeningen[:nummer], rekeningen[nummer+1:]...)
+		} else if keuze == 4 {
 			for i := range rekeningen {
 				fmt.Println(i, rekeningen[i].naam)
 			}
 			fmt.Print("Kies: ")
 			fmt.Scanln(&huidigeRekening)
-		} else if keuze == 4 {
+		} else if keuze == 5 {
 			var nieuw string
 			fmt.Print("\nNieuw bedrag: ")
 			fmt.Scanln(&nieuw)
 			setMoney(&rekeningen[huidigeRekening], nieuw)
-		} else if keuze == 5 {
-			addMoney(&rekeningen[huidigeRekening])
 		} else if keuze == 6 {
+			addMoney(&rekeningen[huidigeRekening])
+		} else if keuze == 7 {
 			subMoney(&rekeningen[huidigeRekening])
 		} else if keuze == 8 {
 			setMoney(&rekeningen[huidigeRekening], rekeningen[huidigeRekening].vorigAmount.String())
