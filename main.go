@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-var x1000 = []string{"", "k", "M", "G", "T", "P", "E", "Z", "Y", "R", "Q"}
+var x1000 = []string{"", "k", "M", "G", "T", "P", "E", "Z", "Y", "X", "W", "V", "U", "TD", "S", "R", "Q"}
 
 type Geld struct {
 	naam        string
@@ -161,7 +161,9 @@ func main() {
 		} else if keuze == 2 {
 			var naam string
 			fmt.Print("\nNaam: ")
-			fmt.Scanln(&naam)
+			scanner := bufio.NewScanner(os.Stdin)
+			scanner.Scan()
+			naam = scanner.Text()
 			rekeningen = append(rekeningen, nieuweRekening(naam))
 		} else if keuze == 3 {
 			var nummer int
@@ -171,6 +173,9 @@ func main() {
 			fmt.Print("Nummer: ")
 			fmt.Scanln(&nummer)
 			rekeningen = append(rekeningen[:nummer], rekeningen[nummer+1:]...)
+			if huidigeRekening > len(rekeningen) {
+				huidigeRekening = len(rekeningen) - 1
+			}
 		} else if keuze == 4 {
 			for i := range rekeningen {
 				fmt.Println(i, rekeningen[i].naam)
