@@ -40,15 +40,8 @@ func setMoney(geld *Geld, value string) {
 	setX1000(geld)
 }
 
-func addMoney(geld *Geld) {
-	(*geld).vorigAmount.SetString((*geld).amount.String(), 10)
-	var grootte string
-	var hoeveelheid string
+func money(grootte string, hoeveelheid string) big.Int {
 	var indexGrootte int
-	fmt.Print("Grootte van het bedrag ", x1000, ": ")
-	fmt.Scanln(&grootte)
-	fmt.Print("Hoeveelheid van het bedrag: ")
-	fmt.Scanln(&hoeveelheid)
 	for i := range x1000 {
 		if grootte == x1000[i] {
 			indexGrootte = i
@@ -60,34 +53,110 @@ func addMoney(geld *Geld) {
 	var bedrag big.Int
 	bedrag.SetString(hoeveelheid, 10)
 	bedrag.Mul(&bedrag, multiplier)
-	var totaal big.Int
-	totaal.Add(&geld.amount, &bedrag)
-	setMoney(geld, totaal.String())
+	return bedrag
 }
 
-func subMoney(geld *Geld) {
-	(*geld).vorigAmount.SetString((*geld).amount.String(), 10)
+func askUserAmount() (string, string) {
 	var grootte string
 	var hoeveelheid string
-	var indexGrootte int
 	fmt.Print("Grootte van het bedrag ", x1000, ": ")
 	fmt.Scanln(&grootte)
 	fmt.Print("Hoeveelheid van het bedrag: ")
 	fmt.Scanln(&hoeveelheid)
-	for i := range x1000 {
-		if grootte == x1000[i] {
-			indexGrootte = i
-			break
-		}
-	}
-	var multiplier = big.NewInt(1000)
-	multiplier.Exp(multiplier, big.NewInt(int64(indexGrootte)), nil)
-	var bedrag big.Int
-	bedrag.SetString(hoeveelheid, 10)
-	bedrag.Mul(&bedrag, multiplier)
+	return grootte, hoeveelheid
+}
+
+func addMoneyTo(rekening *Geld, grootte string, hoeveelheid string) {
+	(*rekening).vorigAmount.SetString((*rekening).amount.String(), 10)
 	var totaal big.Int
-	totaal.Sub(&geld.amount, &bedrag)
-	setMoney((geld), totaal.String())
+	bedrag := money(grootte, hoeveelheid)
+	totaal.Add(&rekening.amount, &bedrag)
+	setMoney(rekening, totaal.String())
+}
+
+func income(rekening *Geld) {
+	var keuze int
+	var keuzearray = []string{"90", "100", "1000", "10", "10", "10", "50", "25", "10"}
+	var aantal string
+	var money, number2 big.Int
+	fmt.Println("1. Dagen gewerkt voor werkgever")
+	fmt.Println("2. Spaargeld storting")
+	fmt.Println("3. Level behaald")
+	fmt.Println("4. Pompen")
+	fmt.Println("5. Huishoudelijke taak of nuttig werk (minuten)")
+	fmt.Println("6. Stuk fruit eten")
+	fmt.Println("7. Gezonde maaltijd eten")
+	fmt.Println("8. Wandelen")
+	fmt.Println("9. Lopen (Sneller dan 10 km/u) (m)")
+	fmt.Print("Keuze: ")
+	fmt.Scanln(&keuze)
+	if keuze != 1 && keuze != 8 && keuze != 9 {
+		fmt.Print("Aantal: ")
+		fmt.Scanln(&aantal)
+		money.SetString(aantal, 10)
+		number2.SetString(keuzearray[keuze-1], 10)
+		money.Mul(&money, &number2)
+	} else if keuze == 1 {
+		fmt.Print("Hoogst behaald level: ")
+		fmt.Scanln(&aantal)
+		var add big.Int
+		money.SetString(aantal, 10)
+		number2.SetString("10", 10)
+		add.SetString(keuzearray[0], 10)
+		money.Mul(&money, &number2)
+		money.Add(&money, &add)
+	} else if keuze == 8 {
+		var keuze2 int
+		fmt.Println("1: Stappen")
+		fmt.Println("2: Meter")
+		fmt.Print("Keuze: ")
+		fmt.Scanln(&keuze2)
+		fmt.Print("Aantal: ")
+		fmt.Scanln(&aantal)
+		if keuze2 == 1 {
+			money.SetString(aantal, 10)
+			number2.SetString(keuzearray[keuze-1], 10)
+			money.Div(&money, &number2)
+		} else {
+			money.SetString(aantal, 10)
+			number2.SetString("20", 10)
+			money.Div(&money, &number2)
+		}
+	} else if keuze == 9 {
+		fmt.Print("Aantal meter: ")
+		fmt.Scanln(&aantal)
+		money.SetString(aantal, 10)
+		number2.SetString(keuzearray[keuze-1], 10)
+		money.Div(&money, &number2)
+	}
+	addMoneyTo(rekening, "", money.String())
+}
+
+func subMoneyFrom(rekening *Geld, grootte string, hoeveelheid string) {
+	(*rekening).vorigAmount.SetString((*rekening).amount.String(), 10)
+	var totaal big.Int
+	bedrag := money(grootte, hoeveelheid)
+	totaal.Sub(&rekening.amount, &bedrag)
+	setMoney((rekening), totaal.String())
+}
+
+func expense(rekening *Geld) {
+	var keuze int
+	var keuzearray = []string{"120", "2000", "100", "20"}
+	var aantal string
+	var money, number2 big.Int
+	fmt.Println("1. Afhaling spaargeld")
+	fmt.Println("2. Start level")
+	fmt.Println("3. Ongezonde maaltijd")
+	fmt.Println("4. Ongezonde snack")
+	fmt.Print("Keuze: ")
+	fmt.Scanln(&keuze)
+	fmt.Print("Aantal: ")
+	fmt.Scanln(&aantal)
+	money.SetString(aantal, 10)
+	number2.SetString(keuzearray[keuze-1], 10)
+	money.Mul(&money, &number2)
+	subMoneyFrom(rekening, "", money.String())
 }
 
 func loadFile() []string {
@@ -149,9 +218,11 @@ func main() {
 		fmt.Println("4. Wijzig actieve rekening")
 		fmt.Println("5. Verander totaal geld")
 		fmt.Println("6. + geld")
-		fmt.Println("7. - geld")
-		fmt.Println("8. CANCEL vorige wijziging")
-		fmt.Println("9. Sla op")
+		fmt.Println("7. Inkomsten")
+		fmt.Println("8. - geld")
+		fmt.Println("9. Uitgaven")
+		fmt.Println("10. CANCEL vorige wijziging")
+		fmt.Println("11. Sla op")
 		var keuze int
 		fmt.Print("Keuze: ")
 		fmt.Scanln(&keuze)
@@ -188,12 +259,18 @@ func main() {
 			fmt.Scanln(&nieuw)
 			setMoney(&rekeningen[huidigeRekening], nieuw)
 		} else if keuze == 6 {
-			addMoney(&rekeningen[huidigeRekening])
+			grootte, hoeveelheid := askUserAmount()
+			addMoneyTo(&rekeningen[huidigeRekening], grootte, hoeveelheid)
 		} else if keuze == 7 {
-			subMoney(&rekeningen[huidigeRekening])
+			income(&rekeningen[huidigeRekening])
 		} else if keuze == 8 {
-			setMoney(&rekeningen[huidigeRekening], rekeningen[huidigeRekening].vorigAmount.String())
+			grootte, hoeveelheid := askUserAmount()
+			subMoneyFrom(&rekeningen[huidigeRekening], grootte, hoeveelheid)
 		} else if keuze == 9 {
+			expense(&rekeningen[huidigeRekening])
+		} else if keuze == 10 {
+			setMoney(&rekeningen[huidigeRekening], rekeningen[huidigeRekening].vorigAmount.String())
+		} else if keuze == 11 {
 			saveFile(&rekeningen)
 		}
 		balans(rekeningen[huidigeRekening])
