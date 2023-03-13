@@ -97,14 +97,19 @@ func income(rekening *Geld) {
 		number2.SetString(keuzearray[keuze-1], 10)
 		money.Mul(&money, &number2)
 	} else if keuze == 1 {
+		var lvl string
 		fmt.Print("Hoogst behaald level: ")
+		fmt.Scanln(&lvl)
+		fmt.Print("Aantal dagen gewerkt: ")
 		fmt.Scanln(&aantal)
-		var add big.Int
-		money.SetString(aantal, 10)
-		number2.SetString("10", 10)
+		var add, dagen big.Int
+		money.SetString(lvl, 10)
+		dagen.SetString(aantal, 10)
 		add.SetString(keuzearray[0], 10)
+		number2.SetString("10", 10)
 		money.Mul(&money, &number2)
 		money.Add(&money, &add)
+		money.Mul(&money, &dagen)
 	} else if keuze == 8 {
 		var keuze2 int
 		fmt.Println("1: Stappen")
