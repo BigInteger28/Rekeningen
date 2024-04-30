@@ -5,9 +5,12 @@ import (
 	"fmt"
 	"math/big"
 	"os"
+  "strings"
 )
 
-var x1000 = []string{"", "k", "M", "G", "T", "P", "E", "Z", "Y", "X", "W", "V", "U", "TD", "S", "R", "Q"}
+var x1000 = []string{"", "k", "M", "G", "T", "P", "E", "Z", "Y", "R", "Q", "X1", "X2", "X3", "X4", "X5", "X6"}
+
+var x1000text = []string{"", " Duizend ", " Miljoen ", "  Miljard ", " Biljoen ", " Biljard ", " Triljoen ", " Triljard ", "  Quadriljoen ", " Quadriljard ", " Quintiljoen ", " Quintiljard ", " Septiljoen ", " Septiljard ", "Octiljoen ", "Octiljard ", " Noniljoen "}
 
 type Geld struct {
 	naam        string
@@ -21,6 +24,26 @@ func check(e error) {
 	if e != nil {
 		panic(e)
 	}
+}
+
+func formatBigNumber(numberStr string) string {
+	n := len(numberStr)
+	if n <= 3 {
+		return numberStr
+	}
+
+	var result strings.Builder
+	start := n % 3
+	if start > 0 {
+		result.WriteString(numberStr[:start] + " ")
+	}
+	for i := start; i < n; i += 3 {
+		if i > start {
+			result.WriteString(" ")
+		}
+		result.WriteString(numberStr[i : i+3])
+	}
+	return result.String()
 }
 
 func setX1000(geld *Geld) {
@@ -76,7 +99,7 @@ func addMoneyTo(rekening *Geld, grootte string, hoeveelheid string) {
 
 func income(rekening *Geld) {
 	var keuze int
-	var keuzearray = []string{"90", "100", "1000", "10", "10", "10", "50", "25", "10"}
+	var keuzearray = []string{"90", "100", "1000", "10", "10", "10", "50", "25", "10", "20"}
 	var aantal string
 	var money, number2 big.Int
 	fmt.Println("1. Dagen gewerkt voor werkgever")
@@ -88,9 +111,10 @@ func income(rekening *Geld) {
 	fmt.Println("7. Gezonde maaltijd eten")
 	fmt.Println("8. Wandelen")
 	fmt.Println("9. Lopen (Sneller dan 10 km/u) (m)")
+  fmt.Println("10. Fietsen (m)")
 	fmt.Print("Keuze: ")
 	fmt.Scanln(&keuze)
-	if keuze != 1 && keuze != 8 && keuze != 9 {
+	if keuze != 1 && keuze != 8 && keuze != 9 && keuze != 10 {
 		fmt.Print("Aantal: ")
 		fmt.Scanln(&aantal)
 		money.SetString(aantal, 10)
@@ -133,7 +157,13 @@ func income(rekening *Geld) {
 		money.SetString(aantal, 10)
 		number2.SetString(keuzearray[keuze-1], 10)
 		money.Div(&money, &number2)
-	}
+	} else if keuze == 10 {
+    fmt.Print("Aantal meter: ")
+		fmt.Scanln(&aantal)
+		money.SetString(aantal, 10)
+		number2.SetString(keuzearray[keuze-1], 10)
+		money.Div(&money, &number2)
+  }
 	addMoneyTo(rekening, "", money.String())
 }
 
@@ -203,7 +233,8 @@ func importeerRekeningen() []Geld {
 }
 
 func balans(rekening Geld) {
-	fmt.Println("\n", rekening.naam, "\n", rekening.amount.String(), "\n", rekening.dig.String(), x1000[rekening.x1000])
+money := formatBigNumber(rekening.amount.String())
+	fmt.Println("\n", rekening.naam, "\n", money, "\n", rekening.dig.String(), x1000text[rekening.x1000], x1000[rekening.x1000])
 }
 
 func nieuweRekening(naam string) Geld {
@@ -216,32 +247,32 @@ func nieuweRekening(naam string) Geld {
 func main() {
 	var rekeningen []Geld
 	var huidigeRekening int
+  rekeningen = importeerRekeningen()
 	for {
-		fmt.Println("1. Importeer rekeningen")
-		fmt.Println("2. Maak rekening aan")
-		fmt.Println("3. Verwijder rekening")
-		fmt.Println("4. Wijzig actieve rekening")
-		fmt.Println("5. Verander totaal geld")
-		fmt.Println("6. + geld")
-		fmt.Println("7. Inkomsten")
-		fmt.Println("8. - geld")
-		fmt.Println("9. Uitgaven")
-		fmt.Println("10. CANCEL vorige wijziging")
-		fmt.Println("11. Sla op")
+    fmt.Println("0. Importeer money.txt")
+		fmt.Println("1. Maak rekening aan")
+		fmt.Println("2. Verwijder rekening")
+		fmt.Println("3. Wijzig actieve rekening")
+		fmt.Println("4. Verander totaal geld")
+		fmt.Println("5. + geld")
+		fmt.Println("6. Inkomsten")
+		fmt.Println("7. - geld")
+		fmt.Println("8. Uitgaven")
+		fmt.Println("9. CANCEL vorige wijziging")
+		fmt.Println("10. Sla op")
 		var keuze int
 		fmt.Print("Keuze: ")
 		fmt.Scanln(&keuze)
-
-		if keuze == 1 {
-			rekeningen = importeerRekeningen()
-		} else if keuze == 2 {
+   if keuze == 0 {
+		  rekeningen = importeerRekeningen()
+   } else if keuze == 1 {
 			var naam string
 			fmt.Print("\nNaam: ")
 			scanner := bufio.NewScanner(os.Stdin)
 			scanner.Scan()
 			naam = scanner.Text()
 			rekeningen = append(rekeningen, nieuweRekening(naam))
-		} else if keuze == 3 {
+		} else if keuze == 2 {
 			var nummer int
 			for i := range rekeningen {
 				fmt.Println(i, rekeningen[i].naam)
@@ -252,30 +283,30 @@ func main() {
 			if huidigeRekening > len(rekeningen) {
 				huidigeRekening = len(rekeningen) - 1
 			}
-		} else if keuze == 4 {
+		} else if keuze == 3 {
 			for i := range rekeningen {
 				fmt.Println(i, rekeningen[i].naam)
 			}
 			fmt.Print("Kies: ")
 			fmt.Scanln(&huidigeRekening)
-		} else if keuze == 5 {
+		} else if keuze == 4 {
 			var nieuw string
 			fmt.Print("\nNieuw bedrag: ")
 			fmt.Scanln(&nieuw)
 			setMoney(&rekeningen[huidigeRekening], nieuw)
-		} else if keuze == 6 {
+		} else if keuze == 5 {
 			grootte, hoeveelheid := askUserAmount()
 			addMoneyTo(&rekeningen[huidigeRekening], grootte, hoeveelheid)
-		} else if keuze == 7 {
+		} else if keuze == 6 {
 			income(&rekeningen[huidigeRekening])
-		} else if keuze == 8 {
+		} else if keuze == 7 {
 			grootte, hoeveelheid := askUserAmount()
 			subMoneyFrom(&rekeningen[huidigeRekening], grootte, hoeveelheid)
-		} else if keuze == 9 {
+		} else if keuze == 8 {
 			expense(&rekeningen[huidigeRekening])
-		} else if keuze == 10 {
+		} else if keuze == 9 {
 			setMoney(&rekeningen[huidigeRekening], rekeningen[huidigeRekening].vorigAmount.String())
-		} else if keuze == 11 {
+		} else if keuze == 10 {
 			saveFile(&rekeningen)
 		}
 		balans(rekeningen[huidigeRekening])
