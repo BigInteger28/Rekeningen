@@ -9,23 +9,37 @@ var x1000 = []string{"", "k", "M", "G", "T", "P", "E", "Z", "Y", "R", "Q", "X1",
 var x1000text = []string{"", " Duizend ", " Miljoen ", " Miljard ", " Biljoen ", " Biljard ", " Triljoen ", " Triljard ", " Quadriljoen ", " Quadriljard ", " Quintiljoen ", " Quintiljard ", " Septiljoen ", " Septiljard ", "Octiljoen ", "Octiljard ", " Noniljoen "}
 
 func formatBigInt(number *big.Int) string {
-	numberStr := number.String()
+	// Haal het teken van het getal op
+	isNegative := number.Sign() < 0
+	// Werk met de absolute waarde
+	absNumber := new(big.Int).Abs(number)
+
+	numberStr := absNumber.String()
 	length := len(numberStr)
 	if length < 4 {
+		if isNegative {
+			return "-" + numberStr
+		}
 		return numberStr
 	}
 
+	// Bereken de index voor de suffix
 	unitIndex := (length - 1) / 3
 	if unitIndex >= len(x1000) {
 		unitIndex = len(x1000) - 1
 	}
 
+	// Bereken de schaal en deel het getal
 	divisor := big.NewInt(10)
 	divisor.Exp(divisor, big.NewInt(int64(3*unitIndex)), nil)
-	quotient := big.NewInt(0)
-	quotient.Div(number, divisor)
+	quotient := new(big.Int).Div(absNumber, divisor)
 
-	return fmt.Sprintf("%s%s", quotient.String(), x1000[unitIndex])
+	// Voeg het teken toe als het een negatief getal is
+	result := fmt.Sprintf("%s%s", quotient.String(), x1000[unitIndex])
+	if isNegative {
+		result = "-" + result
+	}
+	return result
 }
 
 func convertToText(number *big.Int) string {
