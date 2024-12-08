@@ -111,7 +111,7 @@ func main() {
 		steps.Div(difference, credRatio)
 
 		// Bereken de som van de reeks getallen in stappen van credRatio
-		// S = n * (n + 1) / 2 * credRatio
+		// S = n * (n + 1) / 2 * multFactor
 		n := steps
 		nPlusOne := big.NewInt(0)
 		nPlusOne.Add(n, big.NewInt(1))
@@ -119,15 +119,11 @@ func main() {
 		sumN := big.NewInt(0)
 		sumN.Mul(n, nPlusOne)
 		sumN.Div(sumN, big.NewInt(2))
-		sumN.Mul(sumN, credRatio)
+		sumN.Mul(sumN, multFactor)
 
 		if difference.Sign() < 0 {
 			sumN.Neg(sumN) // Maak het resultaat negatief als het verschil negatief is
 		}
-
-		// Vermenigvuldig de som met de vermenigvuldigingsfactor
-		totalCredits := big.NewInt(0)
-		totalCredits.Mul(sumN, multFactor)
 
 		// Formatteer de output
 		creditsFormatted := formatBigInt(totalCredits)
