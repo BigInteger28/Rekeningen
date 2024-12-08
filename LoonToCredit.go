@@ -126,10 +126,10 @@ func main() {
 		}
 
 		// Formatteer de output
-		creditsFormatted := formatBigInt(totalCredits)
-		creditsText := convertToText(totalCredits)
+		creditsFormatted := formatBigInt(sumN)
+		creditsText := convertToText(sumN)
 
 		// Output resultaat
-		fmt.Printf("De berekende credits zijn: %s | %s | %s\n", totalCredits.String(), creditsFormatted, creditsText)
+		fmt.Printf("De berekende credits zijn: %s | %s | %s\n", sumN.String(), creditsFormatted, creditsText)
 	}
 }
