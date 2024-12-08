@@ -61,14 +61,14 @@ func main() {
 	for {
 		// Vraag de gebruiker om input
 		var minimum, multiplier, creditAdd, incomeLeft string
-		fmt.Print("\nVoer het minimumloon voor de drempelwaarde in (1000): ")
+		fmt.Print("\nVoer het minimumloon voor de drempelwaarde in (500): ")
 		_, err := fmt.Scanln(&minimum)
 		if err != nil {
 			fmt.Println("Fout bij het lezen van het minimumloon:", err)
 			continue
 		}
 
-		fmt.Print("Voer de vermenigvuldigingsfactor in (1): ")
+		fmt.Print("Voer de vermenigvuldigingsfactor in (20): ")
 		_, err = fmt.Scanln(&multiplier)
 		if err != nil {
 			fmt.Println("Fout bij het lezen van de vermenigvuldigingsfactor:", err)
