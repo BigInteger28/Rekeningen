@@ -233,7 +233,7 @@ func importeerRekeningen() []Geld {
 }
 
 func balans(rekening Geld) {
-money := formatBigNumber(rekening.amount.String())
+	money := formatBigNumber(rekening.amount.String())
 	fmt.Println("\n", rekening.naam, "\n", money, "\n", rekening.dig.String(), x1000text[rekening.x1000], x1000[rekening.x1000])
 }
 
@@ -244,9 +244,21 @@ func nieuweRekening(naam string) Geld {
 	return rekening
 }
 
+func kiesRekening(tekst string, rekeningen *[]Geld) int {
+	var kies int
+	for i := range *rekeningen {
+		fmt.Println(i, (*rekeningen)[i].naam)
+	}
+	fmt.Print(tekst)
+	fmt.Scanln(&kies)
+	return kies
+}
+
 func main() {
 	var rekeningen []Geld
 	var huidigeRekening int
+	var transactie bool
+	var transactieVan, transactieNaar int
   rekeningen = importeerRekeningen()
 	for {
     fmt.Println("0. Importeer money.txt")
@@ -257,9 +269,10 @@ func main() {
 		fmt.Println("5. + geld")
 		fmt.Println("6. Inkomsten")
 		fmt.Println("7. - geld")
-		fmt.Println("8. Uitgaven")
-		fmt.Println("9. CANCEL vorige wijziging")
-		fmt.Println("10. Sla op")
+		fmt.Println("8. Van rekening naar rekening")
+		fmt.Println("9. Uitgaven")
+		fmt.Println("10. CANCEL vorige wijziging")
+		fmt.Println("11. Sla op")
 		var keuze int
 		fmt.Print("Keuze: ")
 		fmt.Scanln(&keuze)
@@ -284,11 +297,7 @@ func main() {
 				huidigeRekening = len(rekeningen) - 1
 			}
 		} else if keuze == 3 {
-			for i := range rekeningen {
-				fmt.Println(i, rekeningen[i].naam)
-			}
-			fmt.Print("Kies: ")
-			fmt.Scanln(&huidigeRekening)
+			huidigeRekening = kiesRekening("Kies: ", &rekeningen)
 		} else if keuze == 4 {
 			var nieuw string
 			fmt.Print("\nNieuw bedrag: ")
@@ -303,10 +312,27 @@ func main() {
 			grootte, hoeveelheid := askUserAmount()
 			subMoneyFrom(&rekeningen[huidigeRekening], grootte, hoeveelheid)
 		} else if keuze == 8 {
-			expense(&rekeningen[huidigeRekening])
+			var vanRekening int
+			var naarRekening int
+			vanRekening = kiesRekening("Van rekening: ", &rekeningen)
+			transactieVan = vanRekening
+			naarRekening = kiesRekening("Naar rekening: ", &rekeningen)
+			transactieNaar = naarRekening
+			grootte, hoeveelheid := askUserAmount()			
+			subMoneyFrom(&rekeningen[vanRekening], grootte, hoeveelheid)
+			addMoneyTo(&rekeningen[naarRekening], grootte, hoeveelheid)
+			transactie = true
 		} else if keuze == 9 {
-			setMoney(&rekeningen[huidigeRekening], rekeningen[huidigeRekening].vorigAmount.String())
+			expense(&rekeningen[huidigeRekening])
 		} else if keuze == 10 {
+			if !transactie {
+				setMoney(&rekeningen[huidigeRekening], rekeningen[huidigeRekening].vorigAmount.String())
+			} else {
+				setMoney(&rekeningen[transactieVan], rekeningen[transactieVan].vorigAmount.String())
+				setMoney(&rekeningen[transactieNaar], rekeningen[transactieNaar].vorigAmount.String())
+				transactie = false
+			}
+		} else if keuze == 11 {
 			saveFile(&rekeningen)
 		}
 		balans(rekeningen[huidigeRekening])
