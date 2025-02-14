@@ -27,7 +27,7 @@ func check(e error) {
 	}
 }
 
-func formatBigNumber(numberStr string) string {
+func formatBigNumber(s string) string {
 	n := len(s)
 	if n <= 3 {
 		return s
