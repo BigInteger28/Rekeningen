@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"math/big"
 	"os"
-  "strings"
+    "strings"
 )
 
-var x1000 = []string{"", "k", "M", "G", "T", "P", "E", "Z", "Y", "R", "Q", "X1", "X2", "X3", "X4", "X5", "X6"}
-
-var x1000text = []string{"", " Duizend ", " Miljoen ", "  Miljard ", " Biljoen ", " Biljard ", " Triljoen ", " Triljard ", "  Quadriljoen ", " Quadriljard ", " Quintiljoen ", " Quintiljard ", " Septiljoen ", " Septiljard ", "Octiljoen ", "Octiljard ", " Noniljoen "}
+var (
+	x1000     = []string{"", "k", "M", "G", "T", "P", "E", "Z", "Y", "R", "Q", "X11", "X12", "X13", "X14", "X15", "X16", "X17", "X18", "X19", "X20", "X21"}
+	x1000text = []string{"", " Duizend ", " Miljoen ", " Miljard ", " Biljoen ", " Biljard ", " Triljoen ", " Triljard ", " Quadriljoen ", " Quadriljard ", " Quintiljoen ", " Quintiljard ", " Sextiljoen ", " Sextiljard ", " Septiljoen ", " Septiljard ", " Octiljoen ", " Octiljard ", " Noniljoen ", " Noniljard ", " Deciljoen ", " Deciljard "}
+)
 
 type Geld struct {
 	naam        string
@@ -27,23 +28,16 @@ func check(e error) {
 }
 
 func formatBigNumber(numberStr string) string {
-	n := len(numberStr)
+	n := len(s)
 	if n <= 3 {
-		return numberStr
+		return s
 	}
-
-	var result strings.Builder
-	start := n % 3
-	if start > 0 {
-		result.WriteString(numberStr[:start] + " ")
+	parts := []string{}
+	for i := n; i > 0; i -= 3 {
+		start := max(0, i-3)
+		parts = append([]string{s[start:i]}, parts...)
 	}
-	for i := start; i < n; i += 3 {
-		if i > start {
-			result.WriteString(" ")
-		}
-		result.WriteString(numberStr[i : i+3])
-	}
-	return result.String()
+	return strings.Join(parts, " ")
 }
 
 func setX1000(geld *Geld) {
