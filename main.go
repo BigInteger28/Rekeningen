@@ -52,9 +52,10 @@ func setX1000(geld *Geld) {
 	(*geld).dig.Div(&geld.amount, comp)
 }
 
-func setMoney(geld *Geld, value string) {
-	(*geld).amount.SetString(value, 10)
-	setX1000(geld)
+func setMoney(rekening *Geld, grootte string, hoeveelheid string) {
+	(*rekening).vorigAmount.SetString((*rekening).amount.String(), 10)
+	rekening.amount = money(grootte, hoeveelheid)
+	setX1000(rekening)
 }
 
 func money(grootte string, hoeveelheid string) big.Int {
@@ -88,7 +89,8 @@ func addMoneyTo(rekening *Geld, grootte string, hoeveelheid string) {
 	var totaal big.Int
 	bedrag := money(grootte, hoeveelheid)
 	totaal.Add(&rekening.amount, &bedrag)
-	setMoney(rekening, totaal.String())
+	rekening.amount = totaal
+	setX1000(rekening)
 }
 
 func income(rekening *Geld) {
@@ -166,7 +168,7 @@ func subMoneyFrom(rekening *Geld, grootte string, hoeveelheid string) {
 	var totaal big.Int
 	bedrag := money(grootte, hoeveelheid)
 	totaal.Sub(&rekening.amount, &bedrag)
-	setMoney((rekening), totaal.String())
+	setMoney(rekening, grootte, totaal.String())
 }
 
 func expense(rekening *Geld) {
@@ -220,7 +222,7 @@ func importeerRekeningen() []Geld {
 		if i%2 == 0 {
 			rekeningen[i/2].naam = rek[i]
 		} else {
-			setMoney(&rekeningen[i/2], rek[i])
+			setMoney(&rekeningen[i/2], "", rek[i])
 		}
 	}
 	return rekeningen
@@ -233,7 +235,8 @@ func balans(rekening Geld) {
 
 func nieuweRekening(naam string) Geld {
 	var rekening Geld
-	setMoney(&rekening, "0")
+	grootte, hoeveelheid := askUserAmount()
+	setMoney(&rekening, grootte, hoeveelheid)
 	rekening.naam = naam
 	return rekening
 }
@@ -293,10 +296,8 @@ func main() {
 		} else if keuze == 3 {
 			huidigeRekening = kiesRekening("Kies: ", &rekeningen)
 		} else if keuze == 4 {
-			var nieuw string
-			fmt.Print("\nNieuw bedrag: ")
-			fmt.Scanln(&nieuw)
-			setMoney(&rekeningen[huidigeRekening], nieuw)
+			grootte, hoeveelheid := askUserAmount()
+			setMoney(&rekeningen[huidigeRekening], grootte, hoeveelheid)
 		} else if keuze == 5 {
 			grootte, hoeveelheid := askUserAmount()
 			addMoneyTo(&rekeningen[huidigeRekening], grootte, hoeveelheid)
@@ -320,10 +321,10 @@ func main() {
 			expense(&rekeningen[huidigeRekening])
 		} else if keuze == 10 {
 			if !transactie {
-				setMoney(&rekeningen[huidigeRekening], rekeningen[huidigeRekening].vorigAmount.String())
+				setMoney(&rekeningen[huidigeRekening], "", rekeningen[huidigeRekening].vorigAmount.String())
 			} else {
-				setMoney(&rekeningen[transactieVan], rekeningen[transactieVan].vorigAmount.String())
-				setMoney(&rekeningen[transactieNaar], rekeningen[transactieNaar].vorigAmount.String())
+				setMoney(&rekeningen[transactieVan], "", rekeningen[transactieVan].vorigAmount.String())
+				setMoney(&rekeningen[transactieNaar], "", rekeningen[transactieNaar].vorigAmount.String())
 				transactie = false
 			}
 		} else if keuze == 11 {
