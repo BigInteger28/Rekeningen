@@ -164,11 +164,12 @@ func income(rekening *Geld) {
 }
 
 func subMoneyFrom(rekening *Geld, grootte string, hoeveelheid string) {
-	(*rekening).vorigAmount.SetString((*rekening).amount.String(), 10)
-	var totaal big.Int
-	bedrag := money(grootte, hoeveelheid)
-	totaal.Sub(&rekening.amount, &bedrag)
-	setMoney(rekening, grootte, totaal.String())
+    (*rekening).vorigAmount.SetString((*rekening).amount.String(), 10)
+    var totaal big.Int
+    bedrag := money(grootte, hoeveelheid)
+    totaal.Sub(&rekening.amount, &bedrag)
+    rekening.amount.Set(&totaal) // Direct de nieuwe waarde instellen
+    setX1000(rekening)           // Grootte bijwerken
 }
 
 func expense(rekening *Geld) {
