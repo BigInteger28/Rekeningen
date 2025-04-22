@@ -9,9 +9,11 @@ import (
 )
 
 var (
-	x1000     = []string{"", "k", "M", "G", "T", "P", "E", "Z", "Y", "R", "Q", "X11", "X12", "X13", "X14", "X15", "X16", "X17", "X18", "X19", "X20", "X21"}
-	x1000text = []string{"", " Duizend ", " Miljoen ", " Miljard ", " Biljoen ", " Biljard ", " Triljoen ", " Triljard ", " Quadriljoen ", " Quadriljard ", " Quintiljoen ", " Quintiljard ", " Sextiljoen ", " Sextiljard ", " Septiljoen ", " Septiljard ", " Octiljoen ", " Octiljard ", " Noniljoen ", " Noniljard ", " Deciljoen ", " Deciljard "}
+	x1000     = []string{"", "k", "M", "G", "T", "P", "E", "Z", "Y", "R", "Q", "X11", "X12", "X13", "X14", "X15", "X16", "X17", "X18", "X19", "X20", "X21", "X22", "X23", "X24", "X25", "X26", "X27", "X28", "X29", "X30", "X31", "X32", "X33", "X34", "X35", "X36", "X37", "X38", "X39", "X40", "X41"}
+	x1000text = []string{"", " Duizend ", " Miljoen ", " Miljard ", " Biljoen ", " Biljard ", " Triljoen ", " Triljard ", " Quadriljoen ", " Quadriljard ", " Quintiljoen ", " Quintiljard ", " Sextiljoen ", " Sextiljard ", " Septiljoen ", " Septiljard ", " Octiljoen ", " Octiljard ", " Noniljoen ", " Noniljard ", " Deciljoen ", " Deciljard ", " Undeciljoen ", " Undeciljard ", " Duodeciljoen ", " Duodeciljard ", " Tredeciljoen ", " Tredeciljard ", " Quattuordeciljoen ", " Quattuordeciljard ", " Quindeciljoen ", " Quindeciljard ", " Sedeciljoen ", " Sedeciljard ", " Septendeciljoen ", " Septendeciljard ", " Octodeciljoen ", " Octodeciljard ", " Novemdeciljoen ", " Novemdeciljard ", " Vigintiljoen ", " Vigintiljard "}
 )
+
+const maxIndex = 41 // Maximale index om fouten te voorkomen
 
 type Geld struct {
 	naam        string
@@ -41,15 +43,27 @@ func formatBigNumber(s string) string {
 }
 
 func setX1000(geld *Geld) {
-	var comp = big.NewInt(1000)
-	var x = 0
-	for geld.amount.Cmp(comp) > 0 {
-		comp.Mul(comp, big.NewInt(1000))
-		x++
-	}
-	(*geld).x1000 = x
-	comp.Div(comp, big.NewInt(1000))
-	(*geld).dig.Div(&geld.amount, comp)
+    strAmount := geld.amount.String()
+    length := len(strAmount)
+
+    // Bepaal index (elke 3 extra cijfers betekent +1 in x1000-index)
+    geld.x1000 = (length - 1) / 3
+
+    // **Voorkom dat x1000 buiten de limiet gaat**
+    if geld.x1000 > maxIndex {
+        geld.x1000 = maxIndex
+    }
+
+    // Deel het getal door 1000^index
+    divisor := new(big.Int).Exp(big.NewInt(1000), big.NewInt(int64(geld.x1000)), nil)
+    geld.dig.Div(&geld.amount, divisor)
+
+    // **Afkappen na de eerste 7 significante cijfers**
+    digStr := geld.dig.String()
+    if len(digStr) > 7 {
+        digStr = digStr[:7]
+    }
+    geld.dig.SetString(digStr, 10) // Zet terug naar een big.Int
 }
 
 func setMoney(rekening *Geld, grootte string, hoeveelheid string) {
@@ -95,81 +109,38 @@ func addMoneyTo(rekening *Geld, grootte string, hoeveelheid string) {
 
 func income(rekening *Geld) {
 	var keuze int
-	var keuzearray = []string{"90", "100", "1000", "10", "10", "10", "50", "25", "10", "20"}
-	var aantal string
-	var money, number2 big.Int
-	fmt.Println("1. Dagen gewerkt voor werkgever")
-	fmt.Println("2. Spaargeld storting")
-	fmt.Println("3. Level behaald")
-	fmt.Println("4. Pompen")
-	fmt.Println("5. Huishoudelijke taak of nuttig werk (minuten)")
-	fmt.Println("6. Stuk fruit eten")
-	fmt.Println("7. Gezonde maaltijd eten")
-	fmt.Println("8. Wandelen")
-	fmt.Println("9. Lopen (Sneller dan 10 km/u) (m)")
-  fmt.Println("10. Fietsen (m)")
-	fmt.Print("Keuze: ")
+	var keuzearray = []string{"10", "20", "50", "100", "10", "25", "", "", "", ""}
+	var aantal, level  string
+	var money, multiplier, number2 big.Int
+	fmt.Print("Level: ")
+	fmt.Scanln(&level)
+	fmt.Println("0. Sluit menu")
+	fmt.Println("1. Pompen")
+	fmt.Println("2. Huishoudelijke taak of nuttig werk (minuten)")
+	fmt.Println("3. Stuk fruit eten")
+	fmt.Println("4. Gezonde maaltijd eten")
+	fmt.Println("5. Wandelen in m")
+	fmt.Println("6. Lopen (Sneller dan 10 km/u) in m")
+	fmt.Println("7. ---")
+	fmt.Println("8. ---")
+	fmt.Println("9. ---")
+	fmt.Println("10. ---")
+	fmt.Print("Keuze: ---")
 	fmt.Scanln(&keuze)
-	if keuze != 1 && keuze != 8 && keuze != 9 && keuze != 10 {
+	if keuze != 0 {
 		fmt.Print("Aantal: ")
 		fmt.Scanln(&aantal)
 		money.SetString(aantal, 10)
-		number2.SetString(keuzearray[keuze-1], 10)
-		money.Mul(&money, &number2)
-	} else if keuze == 1 {
-		var lvl string
-		fmt.Print("Hoogst behaald level: ")
-		fmt.Scanln(&lvl)
-		fmt.Print("Aantal dagen gewerkt: ")
-		fmt.Scanln(&aantal)
-		var add, dagen big.Int
-		money.SetString(lvl, 10)
-		dagen.SetString(aantal, 10)
-		add.SetString(keuzearray[0], 10)
-		number2.SetString("10", 10)
-		money.Mul(&money, &number2)
-		money.Add(&money, &add)
-		money.Mul(&money, &dagen)
-	} else if keuze == 8 {
-		var keuze2 int
-		fmt.Println("1: Stappen")
-		fmt.Println("2: Meter")
-		fmt.Print("Keuze: ")
-		fmt.Scanln(&keuze2)
-		fmt.Print("Aantal: ")
-		fmt.Scanln(&aantal)
-		if keuze2 == 1 {
-			money.SetString(aantal, 10)
-			number2.SetString(keuzearray[keuze-1], 10)
-			money.Div(&money, &number2)
-		} else {
-			money.SetString(aantal, 10)
-			number2.SetString("20", 10)
-			money.Div(&money, &number2)
+		multiplier.SetString(keuzearray[keuze-1], 10)
+		money.Mul(&money, &multiplier)
+		
+		if keuze == 5 || keuze == 6 {
+			var hundred big.Int
+			money.Div(&money, new(big.Int).SetString("100", 10))
 		}
-	} else if keuze == 9 {
-		fmt.Print("Aantal meter: ")
-		fmt.Scanln(&aantal)
-		money.SetString(aantal, 10)
-		number2.SetString(keuzearray[keuze-1], 10)
-		money.Div(&money, &number2)
-	} else if keuze == 10 {
-    fmt.Print("Aantal meter: ")
-		fmt.Scanln(&aantal)
-		money.SetString(aantal, 10)
-		number2.SetString(keuzearray[keuze-1], 10)
-		money.Div(&money, &number2)
-  }
-	addMoneyTo(rekening, "", money.String())
-}
-
-func subMoneyFrom(rekening *Geld, grootte string, hoeveelheid string) {
-    (*rekening).vorigAmount.SetString((*rekening).amount.String(), 10)
-    var totaal big.Int
-    bedrag := money(grootte, hoeveelheid)
-    totaal.Sub(&rekening.amount, &bedrag)
-    rekening.amount.Set(&totaal) // Direct de nieuwe waarde instellen
-    setX1000(rekening)           // Grootte bijwerken
+		
+		addMoneyTo(rekening, "", money.String())
+	}
 }
 
 func expense(rekening *Geld) {
@@ -189,6 +160,15 @@ func expense(rekening *Geld) {
 	number2.SetString(keuzearray[keuze-1], 10)
 	money.Mul(&money, &number2)
 	subMoneyFrom(rekening, "", money.String())
+}
+
+func subMoneyFrom(rekening *Geld, grootte string, hoeveelheid string) {
+    (*rekening).vorigAmount.SetString((*rekening).amount.String(), 10)
+    var totaal big.Int
+    bedrag := money(grootte, hoeveelheid)
+    totaal.Sub(&rekening.amount, &bedrag)
+    rekening.amount.Set(&totaal) // Direct de nieuwe waarde instellen
+    setX1000(rekening)           // Grootte bijwerken
 }
 
 func loadFile() []string {
