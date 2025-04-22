@@ -135,7 +135,8 @@ func income(rekening *Geld) {
 		money.Mul(&money, &multiplier)
 		
 		if keuze == 5 || keuze == 6 {
-			money.Div(&money, new(big.Int).SetString("100", 10))
+			hundred := new(big.Int).SetInt64(100)
+			money.Div(&money, hundred)
 		}
 		
 		addMoneyTo(rekening, "", money.String())
