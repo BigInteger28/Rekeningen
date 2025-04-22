@@ -111,7 +111,7 @@ func income(rekening *Geld) {
 	var keuze int
 	var keuzearray = []string{"10", "20", "50", "100", "10", "25", "", "", "", ""}
 	var aantal, level  string
-	var money, multiplier, number2 big.Int
+	var money, multiplier big.Int
 	fmt.Print("Level: ")
 	fmt.Scanln(&level)
 	fmt.Println("0. Sluit menu")
@@ -135,7 +135,6 @@ func income(rekening *Geld) {
 		money.Mul(&money, &multiplier)
 		
 		if keuze == 5 || keuze == 6 {
-			var hundred big.Int
 			money.Div(&money, new(big.Int).SetString("100", 10))
 		}
 		
