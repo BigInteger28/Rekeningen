@@ -56,20 +56,11 @@ func setX1000(geld *Geld) {
     if geld.x1000 > maxIndex {
         geld.x1000 = maxIndex
     }
-
-    // Deel het getal door 1000^index
-    divisor := new(big.Int).Exp(big.NewInt(1000), big.NewInt(int64(geld.x1000)), nil)
-    geld.dig.Div(&geld.amount, divisor)
-
-    // **Afkappen na de eerste 7 significante cijfers**
-    digStr := geld.dig.String()
-    if len(digStr) > 0 && digStr[0] == '-' {
-        offset = 1
-    }
-    if len(digStr) > 7+offset {
-        digStr = digStr[:7+offset]
-    }
-    geld.dig.SetString(digStr, 10) // Zet terug naar een big.Int
+	
+	truncated := length-(int(geld.x1000)*3)
+	geldS := geld.amount.String()
+	geldS = geldS[:truncated]
+	geld.dig.SetString(geldS, 10)
 }
 
 func setMoney(rekening *Geld, grootte string, hoeveelheid string) {
