@@ -63,8 +63,11 @@ func setX1000(geld *Geld) {
 
     // **Afkappen na de eerste 7 significante cijfers**
     digStr := geld.dig.String()
-    if len(digStr) > 7 {
-        digStr = digStr[:7]
+    if len(digStr) > 0 && digStr[0] == '-' {
+        offset = 1
+    }
+    if len(digStr) > 7+offset {
+        digStr = digStr[:7+offset]
     }
     geld.dig.SetString(digStr, 10) // Zet terug naar een big.Int
 }
@@ -176,7 +179,7 @@ func subMoneyFrom(rekening *Geld, grootte string, hoeveelheid string) {
 
 func loadFile() []string {
 	var rek []string
-	file, err := os.Open("storage/shared/Documents/money.txt")
+	file, err := os.Open("money.txt")
 	check(err)
 	defer file.Close()
 	scanner := bufio.NewScanner(file)
@@ -187,7 +190,7 @@ func loadFile() []string {
 }
 
 func saveFile(rekeningen *[]Geld) {
-	file, err := os.Create("storage/shared/Documents/money.txt")
+	file, err := os.Create("./money.txt")
 	check(err)
 	for i := range *rekeningen {
 		file.WriteString((*rekeningen)[i].naam)
