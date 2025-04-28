@@ -47,8 +47,11 @@ func setX1000(geld *Geld) {
     length := len(strAmount)
 
     // Bepaal index (elke 3 extra cijfers betekent +1 in x1000-index)
-    geld.x1000 = (length - 1) / 3
-
+	if strAmount[0] == '-' {
+		geld.x1000 = (length - 2) / 3
+	} else {
+	    geld.x1000 = (length - 1) / 3
+	}
     // **Voorkom dat x1000 buiten de limiet gaat**
     if geld.x1000 > maxIndex {
         geld.x1000 = maxIndex
@@ -173,7 +176,7 @@ func subMoneyFrom(rekening *Geld, grootte string, hoeveelheid string) {
 
 func loadFile() []string {
 	var rek []string
-	file, err := os.Open("money.txt")
+	file, err := os.Open("storage/shared/Documents/money.txt")
 	check(err)
 	defer file.Close()
 	scanner := bufio.NewScanner(file)
@@ -184,7 +187,7 @@ func loadFile() []string {
 }
 
 func saveFile(rekeningen *[]Geld) {
-	file, err := os.Create("./money.txt")
+	file, err := os.Create("storage/shared/Documents/money.txt")
 	check(err)
 	for i := range *rekeningen {
 		file.WriteString((*rekeningen)[i].naam)
