@@ -179,7 +179,7 @@ func subMoneyFrom(rekening *Geld, grootte string, hoeveelheid string) {
 
 func loadFile() []string {
 	var rek []string
-	file, err := os.Open("money.txt")
+	file, err := os.Open("storage/shared/Documents/money.txt")
 	check(err)
 	defer file.Close()
 	scanner := bufio.NewScanner(file)
@@ -190,7 +190,7 @@ func loadFile() []string {
 }
 
 func saveFile(rekeningen *[]Geld) {
-	file, err := os.Create("./money.txt")
+	file, err := os.Create("storage/shared/Documents/money.txt")
 	check(err)
 	for i := range *rekeningen {
 		file.WriteString((*rekeningen)[i].naam)
